@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список объектов баз отдыха</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/objects.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main id ="main-container">
+        <div class="search-container">
+            <div class="search-wrapper">
+                <input type="text" id="search-input" placeholder="Введите запрос поиска">
+                <select id="sort-select">
+                    <option value="default">По умолчанию</option>
+                    <option value="cheap">Сначала дешевые</option>
+                    <option value="expensive">Сначала дорогие</option>
+                </select>
+                <button id="search-button" class="search-button js-search-button">Найти</button>
+            </div>
+        </div>
+        <ul class="objects" >
+            <li th:each="object : ${pagedObjects.objectList}">
+                <div class="object">
+                    <a th:href="@{/api/v1/recreation-objects/{id}(id=${object.getId()})}">
+                        <img th:src="${object.getMainPhoto()}"
+                             th:alt="${object.getName()}"/>
+                    </a>
+                    <div class="object-name">
+                        <a th:href="@{/api/v1/objects/{id}(id=${object.getId()})}" th:text="${object.getName()}">Name</a>
+                    </div>
+                    <div class="object-rating">
+                        <div class="rating">
+                            <div th:if="${object.getReviews().isEmpty()}"><span>Нет отзывов</span></div>
+                            <div th:unless="${object.getReviews().isEmpty()}">
+                                <span>
+                                <i th:if="${object.getRating() >= 1}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 0.5 && object.getRating() < 1}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 0.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                <span>
+                                <i th:if="${object.getRating() >= 2}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 1.5 && object.getRating() < 2}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 1.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                <span>
+                                <i th:if="${object.getRating() >= 3}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 2.5 && object.getRating() < 3}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 2.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                <span>
+                                <i th:if="${object.getRating() >= 4}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 3.5 && object.getRating() < 4}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 3.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                <span>
+                                 <i th:if="${object.getRating() >= 5}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 4.5 && object.getRating() < 5}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 4.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                <span th:text="${object.getReviews().size()} + ' отзывов'"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="object-type">
+                        <p th:text="${object.getObjectType()}">Type</p>
+                    </div>
+                    <div class="object-guests">
+                        <p th:text="${object.getAvailableGuests()} + ' гостей доступно'">Guests</p>
+                    </div>
+                    <div class="object-price">
+                        <p th:text="${object.getPricePerDay()} + ' BYN в день'">Price</p>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <ul class="pagination">
+            <li>
+                <a th:classappend="${pagedObjects.getCurrentPage() == 0} ? 'disabled-link' : ''"
+                   th:href="@{/api/v1/recreation-objects(page=${pagedObjects.getCurrentPage() - 1})}" aria-label="Previous">
+                    &laquo;
+                </a>
+            </li>
+            <li th:each="pageNum : ${#numbers.sequence(0, pagedObjects.getTotalPages() - 1)}">
+                <a th:classappend="${pageNum == pagedObjects.getCurrentPage()} ? 'disabled-link' : ''"
+                   th:href="@{/api/v1/recreation-objects(page=${pageNum})}" th:class="${pageNum == pagedObjects.getCurrentPage()} ? 'active' : ''">
+                    <span th:text="${pageNum + 1}"></span>
+                </a>
+            </li>
+            <li>
+                <a th:classappend="${pagedObjects.getCurrentPage() == pagedObjects.getTotalPages() - 1} ? 'disabled-link' : ''"
+                   th:href="@{/api/v1/recreation-objects(page=${pagedObjects.getCurrentPage() + 1})}" aria-label="Next">
+                    &raquo;
+                </a>
+            </li>
+        </ul>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+</body>
+</html>
+<script type="application/javascript" th:href="@{/webjars/jquery/3.7.1/jquery.min.js}">
+    $(document).ready(function() {
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
+        $('.js-search-button').click(function(e) {
+            const searchValue = $('#search-input').val();
+
+            // Validate the search input
+            if (searchValue.trim() === '') {
+                // Show an error message
+                alert('Пожалуйста, введите поисковый запрос.');
+                return;
+            }
+
+            if (searchValue.length > 100) {
+                // Show an error message
+                alert('Поисковый запрос не может содержать более 100 символов.');
+                return;
+            }
+            e.preventDefault();
+            window.location.replace('/api/v1/recreation-objects/search?text=' +
+                searchValue + '&sortField=' + $('#sort-select').val());
+        });
+    });
+</script>

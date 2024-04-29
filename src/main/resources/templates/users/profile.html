@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список объектов баз отдыха</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/books.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/details.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/form.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/profile.css}"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Change this line */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-direction: row-reverse;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            font-size: 25px;
+            color: gray;
+            cursor: pointer;
+            margin: 0 3px;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: orange;
+        }
+
+        .comment-input {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main id ="main-container">
+        <div class="content">
+            <div class="content profile">
+                <div class="profile-info">
+                    <div class="form-container">
+                        <form id="user-form" th:method="PATCH" th:object="${user}" th:action="@{/api/v1/users/{id}(id=${user.getId()})}" >
+                            <ul class="form-items">
+                                <li>
+                                    <h1>Данные пользователя</h1>
+                                </li>
+                                <li>
+                                    <label for="phone">Телефон</label>
+                                    <input type="phone" name="phone" id="phone" th:field="*{phone}" th:value="${user.getPhone()}" />
+                                    <span th:if="${#fields.hasErrors('phone')}"
+                                          th:errors="*{phone}"
+                                          style="color: red"></span>
+                                </li>
+                                <li>
+                                    <label for="password">Пароль</label>
+                                    <input type="password" name="password" id="password" th:field="*{password}" placeholder="********"/>
+                                    <span th:if="${#fields.hasErrors('password')}"
+                                          th:errors="*{password}"
+                                          style="color: red"></span>
+                                </li>
+                                <li>
+                                    <button type="submit" class="primary">Обновить</button>
+                                </li>
+                                <li>
+                                    <button type="button" id="signout-button" th:onclick="'javascript:logout()'">Выйти</button>
+                                </li>
+                            </ul>
+                        </form>
+                        <form id="profile-form" th:method="PATCH" th:object="${person}" th:action="@{/api/v1/users/{id}/person(id=${user.getId()})}" style="margin-left:10px;">
+                            <ul class="form-items">
+                                <li>
+                                    <h1>Данные о себе</h1>
+                                </li>
+                                <li>
+                                    <label for="name">ФИО</label>
+                                    <input type="text" id="name" th:field="*{name}" pattern="[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+" />
+                                    <span th:if="${#fields.hasErrors('name')}"
+                                          th:errors="*{name}"
+                                          style="color: red"></span>
+                                </li>
+                                <li>
+                                    <label for="gender">Пол</label>
+                                    <select id="gender" th:field="*{gender}">
+                                        <option th:value="Мужской" th:text="Мужской"></option>
+                                        <option th:value="Женский" th:text="Женский"></option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <button type="submit" class="primary">Обновить</button>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+                <div class="profile-orders">
+                    <h2>История броней</h2>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Название объекта</th>
+                            <th>Начало брони</th>
+                            <th>Конец брони</th>
+                            <th class="tr-action">Действие</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${bookings.isEmpty()}"><td colspan="6">Броней не найдено</tr>
+                        <tr th:unless="${bookings.isEmpty()}" th:each="booking : ${bookings}">
+                            <td th:text="${booking.getRecreationObject.getName()}"></td>
+                            <td th:text="${booking.getBookingStartTime()}"></td>
+                            <td th:text="${booking.getBookingEndTime()}"></td>
+                            <td th:if="${#temporals.createNow().toLocalDate().isBefore(booking.getBookingStartTime())}">
+                                <form id="delete-form" th:method="DELETE"
+                                      th:action="@{/api/v1/bookings/{id}(id=${booking.getId()})}"
+                                      th:object="${booking}">
+                                    <button type="submit" th:id="${booking.getId()}" class="delete-button">Отменить</button>
+                                </form>
+                            </td>
+                            <td th:unless="${#temporals.createNow().toLocalDate().isBefore(booking.getBookingStartTime())}">
+                                <th:block th:if="${booking.getRecreationObject().hasReviewForUser(user)}">
+                                    <button type="button" class="review-button disabled">Отзыв оставлен</button>
+                                </th:block>
+                                <th:block th:unless="${booking.getRecreationObject().hasReviewForUser(user)}">
+                                    <button type="button" class="review-button" th:id="'review-button-' + ${booking.getId()}"
+                                            th:onclick="'showReviewModal(' + ${booking.getRecreationObject().getId()} + ')'">
+                                        Оставить отзыв
+                                    </button>
+                                </th:block>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+<div id="review-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Оставить отзыв</h2>
+            <button class="close-button" onclick="hideReviewModal()">&times;</button>
+        </div>
+        <div class="star-rating">
+            <input type="radio" id="star-1" name="rating" value="5">
+            <label for="star-1">★</label>
+            <input type="radio" id="star-2" name="rating" value="4">
+            <label for="star-2">★</label>
+            <input type="radio" id="star-3" name="rating" value="3">
+            <label for="star-3">★</label>
+            <input type="radio" id="star-4" name="rating" value="2">
+            <label for="star-4">★</label>
+            <input type="radio" id="star-5" name="rating" value="1">
+            <label for="star-5">★</label>
+        </div>
+        <textarea id="review-comment" class="comment-input" placeholder="Напишите свой отзыв..."></textarea>
+        <button class="submit-button" onclick="submitReview()">Отправить</button>
+    </div>
+</div>
+</body>
+</html>
+<script type="application/javascript" th:href="@{/webjars/jquery/3.7.1/jquery.min.js}">
+    let rating = 0;
+
+    function logout(){
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '/api/v1/logout'
+        });
+        $(document).ajaxStop(function(){
+            window.location.reload();
+        });
+    }
+
+    function showReviewModal(objectId) {
+        const modal = $("#review-modal");
+        const inputRating = modal.find('input[name="rating"]');
+        const inputComment = modal.find("#review-comment");
+
+        modal.data("booking-id", objectId);
+        modal.css("display", "flex");
+
+        inputRating.prop("checked", false);
+        inputComment.val("");
+
+        // Reset star rating animation
+        $(".star-rating label").removeClass("hover");
+    }
+
+    function hideReviewModal() {
+        const modal = $("#review-modal");
+        modal.css("display", "none");
+    }
+
+    function submitReview() {
+        const modal = $("#review-modal");
+        const objectId = modal.data("booking-id");
+        const inputRating = modal.find('input[name="rating"]:checked');
+        const inputComment = modal.find("#review-comment");
+
+        if (!inputRating.length || rating === 0) {
+            alert("Пожалуйста, выберите рейтинг.");
+            return;
+        }
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
+        $.ajax({
+            type: "POST",
+            url: `/api/v1/reviews/${objectId}`,
+            contentType: "application/json",
+            data: JSON.stringify({
+                rating: rating,
+                comment: inputComment.val()
+            }),
+            success: function() {
+                alert("Отзыв успешно отправлен.");
+                hideReviewModal();
+            },
+            error: function() {
+                alert("Произошла ошибка при отправке отзыва.");
+            }
+        });
+    }
+
+    $(".star-rating label").hover(
+        function() {
+            const input = $(this).find("input");
+            const rating = input.val();
+
+            input.siblings("input").parent().children("label").removeClass("hover");
+
+            input.prevAll().add(this).addClass("hover");
+        },
+        function() {
+            $(this).siblings("input").parent().children("label").removeClass("hover");
+        }
+    );
+
+    $(".star-rating input").click(function() {
+        const input = $(this);
+        rating = input.val();
+
+        input.siblings("input").prop("checked", false);
+        input.prop("checked", true);
+
+        input.parent().children("label").removeClass("hover");
+        input.prevAll().add(input.closest("label")).addClass("active");
+        console.log(rating)
+        console.log(input)
+    })
+</script>

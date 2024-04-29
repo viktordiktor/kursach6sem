@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqldb
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=recreation_db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=pass
+    volumes:
+      - mysqldb_data:/var/lib/mysql
+    restart: always
+    networks:
+      - kursach6sem
+
+  kursach6sem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kursach6sem
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    volumes:
+      - ./src/main/resources/static/public/pictures:/app/uploads
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    restart: always
+    links:
+      - mysqldb
+    networks:
+      - kursach6sem
+
+volumes:
+  mysqldb_data:
+
+networks:
+  kursach6sem:

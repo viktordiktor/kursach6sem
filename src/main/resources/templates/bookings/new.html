@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список книг</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/details.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/form.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        .content-container{
+            display: flex;
+            height: 70vh;
+            padding: 0 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-container {
+            background: #fff;
+            width: 450px;
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .calendar-container header {
+            display: flex;
+            align-items: center;
+            padding: 25px 30px 10px;
+            justify-content: space-between;
+        }
+
+        header .calendar-navigation {
+            display: flex;
+        }
+
+        header .calendar-navigation span {
+            height: 38px;
+            width: 38px;
+            margin: 0 1px;
+            cursor: pointer;
+            text-align: center;
+            line-height: 38px;
+            border-radius: 50%;
+            user-select: none;
+            color: #aeabab;
+            font-size: 1.9rem;
+        }
+
+        .calendar-navigation span:last-child {
+            margin-right: -10px;
+        }
+
+        header .calendar-navigation span:hover {
+            background: #f2f2f2;
+        }
+
+        header .calendar-current-date {
+            font-weight: 500;
+            font-size: 1.45rem;
+        }
+
+        .calendar-body {
+            padding: 20px;
+        }
+
+        .calendar-body ul {
+            list-style: none;
+            flex-wrap: wrap;
+            display: flex;
+            text-align: center;
+        }
+
+        .calendar-body .calendar-dates {
+            margin-bottom: 20px;
+        }
+
+        .calendar-body li {
+            width: calc(100% / 7);
+            font-size: 1.07rem;
+            color: #414141;
+        }
+
+        .calendar-body .calendar-weekdays li {
+            cursor: default;
+            font-weight: 500;
+        }
+
+        .calendar-body .calendar-dates li {
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .calendar-dates li.inactive {
+            color: #aaa;
+        }
+
+        .calendar-dates li.active {
+            color: #fff;
+        }
+
+        .calendar-dates li::before {
+            position: absolute;
+            content: "";
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .calendar-dates li.active::before {
+            background: #6332c5;
+        }
+
+        .calendar-dates li:not(.active):hover::before {
+            background: #e4e1e1;
+        }
+
+        .calendar-dates li.selected {
+            color: #fff;
+        }
+
+        .calendar-dates li.selected::before {
+            background: palegreen;
+        }
+
+        .calendar-dates li:not(.selected):hover::before {
+            background: #e4e1e1;
+        }
+    </style>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main style="overflow: hidden;">
+        <div class="content-container">
+            <div class="calendar-container">
+                <header class="calendar-header">
+                    <p class="calendar-current-date"></p>
+                    <div class="calendar-navigation">
+                <span id="calendar-prev"
+                      class="material-symbols-rounded">
+                            <
+                </span>
+                        <span id="calendar-next"
+                              class="material-symbols-rounded">
+                            >
+                </span>
+                    </div>
+                </header>
+
+                <div class="calendar-body">
+                    <ul class="calendar-weekdays">
+                        <li>Sun</li>
+                        <li>Mon</li>
+                        <li>Tue</li>
+                        <li>Wed</li>
+                        <li>Thu</li>
+                        <li>Fri</li>
+                        <li>Sat</li>
+                    </ul>
+                    <ul class="calendar-dates"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="form-container">
+            <form>
+                <label>
+                    <input type="checkbox"> Я согласен с персональной обработкой данных
+                </label>
+                <br>
+                <input id="submit-button" type="reset" value="Отправить">
+            </form>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+</body>
+</html>
+<script th:inline="javascript" type="application/javascript" th:href="@{/webjars/jquery/3.7.1/jquery.min.js}">
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth();
+
+    const day = document.querySelector(".calendar-dates");
+    const currdate = document.querySelector(".calendar-current-date");
+    const prenexIcons = document.querySelectorAll(".calendar-navigation span");
+    const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ];
+
+    let bookedDates = [];
+
+    const updateBookedDates = () => {
+        const bookings = /*[[${bookings}]]*/ [];
+
+        for (let i = 0; i < bookings.length; i++) {
+            const bookingStartTime = new Date(bookings[i].bookingStartTime);
+            const bookingEndTime = new Date(bookings[i].bookingEndTime);
+
+            const startDate = bookingStartTime.getDate();
+            const endDate = bookingEndTime.getDate();
+
+            const calendarDates = document.querySelectorAll(".calendar-dates > li");
+
+            // Iterate through the days from the start date to the end date
+            for (let date = bookingStartTime; date <= bookingEndTime; date.setDate(date.getDate() + 1)) {
+                const day = date.getDate();
+                const month = date.getMonth();
+                const year = date.getFullYear();
+
+                // Find the corresponding <li> element for the date
+                calendarDates.forEach(calendarDate => {
+                    if (
+                        parseInt(calendarDate.innerText) === day &&
+                        calendarDate.getAttribute("data-year") === year.toString() &&
+                        calendarDate.getAttribute("data-month") === month.toString()
+                    ) {
+                        calendarDate.classList.add("inactive");
+                    }
+                });
+            }
+        }
+    };
+
+    const manipulate = () => {
+        let dayone = new Date(year, month, 1).getDay();
+        let lastdate = new Date(year, month + 1, 0).getDate();
+        let dayend = new Date(year, month, lastdate).getDay();
+        let monthlastdate = new Date(year, month, 0).getDate();
+        let lit = "";
+
+        for (let i = dayone; i > 0; i--) {
+            lit += `<li class="inactive">${monthlastdate - i + 1}</li>`;
+        }
+
+        let currentDate = new Date();
+        let currentYear = currentDate.getFullYear();
+        let currentMonth = currentDate.getMonth();
+        let currentDay = currentDate.getDate();
+
+        for (let i = 1; i <= lastdate; i++) {
+            let isToday =
+                i === currentDay &&
+                month === currentMonth &&
+                year === currentYear
+                    ? "active"
+                    : "";
+            let isInactive =
+                (year < currentYear) ||
+                (year === currentYear && month < currentMonth) ||
+                (year === currentYear && month === currentMonth && i < currentDay)
+                    ? "inactive"
+                    : "";
+            let isSelected = bookedDates.some(
+                date => date.getDate() === i && date.getMonth() === month && date.getFullYear() === year
+            )
+                ? "selected"
+                : "";
+            lit += `<li class="${isToday} ${isInactive} ${isSelected}" data-year="${year}" data-month="${month}">${i}</li>`;
+        }
+
+        for (let i = dayend; i < 6; i++) {
+            lit += `<li class="inactive">${i - dayend + 1}</li>`;
+        }
+
+        currdate.innerText = `${months[month]} ${year}`;
+        day.innerHTML = lit;
+        updateBookedDates();
+
+        // Добавление обработчика события "click" для каждого элемента <li>
+        const dateItems = document.querySelectorAll(".calendar-dates li");
+
+        dateItems.forEach(item => {
+            item.addEventListener("click", () => {
+                const currentDate = new Date();
+                const itemDate = new Date(year, month, parseInt(item.innerText));
+                if (item.classList.contains("inactive")) {
+                    // Проверяем, является ли элемент "inactive" или дата больше текущей даты
+                    return; // Если да, то просто выходим из функции без выполнения дальнейших действий
+                }
+                if (item.classList.contains("inactive") || itemDate > currentDate) {
+                    if (item.classList.contains("selected")) {
+                        item.classList.remove("selected");
+                        const date = item.innerText;
+                        const monthIndex = months.indexOf(currdate.innerText.split(" ")[0]);
+                        const selectedDate = new Date(year, monthIndex, date);
+                        const index = bookedDates.findIndex(
+                            d => d.getTime() === selectedDate.getTime()
+                        );
+                        if (index !== -1) {
+                            bookedDates.splice(index, 1);
+                        }
+                    } else {
+                        item.classList.add("selected");
+                        const date = item.innerText;
+                        const monthIndex = months.indexOf(currdate.innerText.split(" ")[0]);
+                        const selectedDate = new Date(year, monthIndex, date);
+                        bookedDates.push(selectedDate);
+                    }
+                    console.log(bookedDates);
+                }
+            });
+        });
+    };
+
+    manipulate();
+
+    prenexIcons.forEach(icon => {
+        icon.addEventListener("click", () => {
+            month = icon.id === "calendar-prev" ? month - 1 : month + 1;
+            if (month < 0) {
+                month = 11;
+                year--;
+            } else if (month > 11) {
+                month = 0;
+                year++;
+            }
+            manipulate();
+        });
+    });
+
+    const submitButton = document.getElementById("submit-button");
+
+    submitButton.addEventListener("click", sendSelected);
+
+
+    function sendSelected() {
+        if (bookedDates.length === 0) {
+            alert("Please select at least one date.");
+            return;
+        }
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
+
+        const data = {
+            selectedDates: bookedDates.map(date => date.toISOString())
+        };
+
+        $.ajax({
+            type: "POST",
+            url: '/api/v1/bookings/' + /*[[${id}]]*/,
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function() {
+                console.log("successed");
+                window.location.href = '/api/v1/users/profile';
+            },
+            error: function(xhr, status, error) {
+                console.log("Ошибка при отправке запроса:", error);
+            }
+        });
+    }
+</script>

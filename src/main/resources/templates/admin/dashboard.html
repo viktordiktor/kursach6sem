@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список объектов баз отдыха</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/books.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/details.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/form.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/dashboard.css}"/>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main id ="main-container">
+        <div class="dashboard">
+            <div class="dashboard-menu">
+                <ul>
+                    <li class="selected">
+                        <a th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/api/v1/users/admin/bookings}">Брони</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/api/v1/users/admin/recreation-objects}">Объекты базы отдыха</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dashboard-content">
+                <h1>Панель администратора</h1>
+                <ul class="summary-items">
+                    <li>
+                        <div class="summary-title color1">
+                            <span><i class="fa fa-users"></i>Пользователи</span>
+                        </div>
+                        <div class="summary-body" th:text="${users.size()}"></div>
+                    </li>
+                    <li>
+                        <div class="summary-title color2">
+                            <span><i class="fa fa-users"></i>Брони</span>
+                        </div>
+                        <div class="summary-body" th:text="${bookings.size()}"></div>
+                    </li>
+                    <li>
+                        <div class="summary-title color3">
+                            <span><i class="fa fa-users"></i> Прибыль от броней</span>
+                        </div>
+                        <div class="summary-body" th:text="${profit + ' BYN'}"></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список объектов баз отдыха</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/objects.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/form.css}"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main id ="main-container">
+        <div class="content">
+            <a th:href="@{/api/v1/users/admin/recreation-objects}">Вернуться к списку</a>
+        </div>
+        <div class="form-container">
+            <form id="edit-book-form" th:method="PATCH" th:action="@{/api/v1/recreation-objects/{id}(id=${object.getId()})}" th:object="${object}"
+                  enctype="multipart/form-data">
+                <ul class="form-items">
+                    <li>
+                        <h1 th:text="'Редактирование объекта базы отдыха'"></h1>
+                    </li>
+                    <li>
+                        <label for="name">Название</label>
+                        <input type="text" name="name" id="name" th:field="*{name}" th:value="*{name}"/>
+                    </li>
+                    <li>
+                        <label for="type">Тип объекта</label>
+                        <input type="text" name="type" id="type" th:field="*{objectType}" th:value="*{objectType}"/>
+                    </li>
+                    <li>
+                        <label for="guests">Кол-во доступных гостей</label>
+                        <input type="number" name="guests" id="guests" th:field="*{availableGuests}" th:value="*{availableGuests}"/>
+                    </li>
+                    <li>
+                        <label for="description">Описание</label>
+                        <input type="text" name="description" id="description" th:field="*{description}" th:value="*{description}"/>
+                    </li>
+                    <li>
+                        <label for="price">Цена за день</label>
+                        <input type="number" name="price" id="price" th:field="*{pricePerDay}" th:value="*{pricePerDay}"/>
+                    </li>
+                    <li>
+                        <label for="img">Изображение</label>
+                        <input type="file" name="img" accept="image/png, image/jpeg" id="img" th:value="*{mainPhoto}" required/>
+                    </li>
+                    <li>
+                        <label for="additionalImages">Дополнительные изображения</label>
+                        <input type="file" name="additionalImages" accept="image/png, image/jpeg" id="additionalImages" multiple/>
+                    </li>
+                    <li>
+                        <button type="submit" class="primary">Обновить
+                        </button>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+</body>
+</html>
+<script th:inline="javascript" type="application/javascript" th:href="@{/webjars/jquery/3.7.1/jquery.min.js}">
+    $(document).ready(function() {
+        $("#edit-book-form").submit(function() {
+            // Блокируем кнопку после отправки формы
+            $("#edit-book-form button[type='submit']").attr("disabled", "disabled");
+            // Отображаем сообщение о загрузке
+            $("#loading-overlay").show();
+        });
+    });
+</script>

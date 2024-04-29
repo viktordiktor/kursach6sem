@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>Список книг</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/books.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/details.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/public/styles/form.css}"/>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+    <header id="header-container">
+        <div class="brand">
+            <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+        </div>
+        <div>
+            <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+        </div>
+    </header>
+    <main id ="main-container">
+        <div class="content">
+            <div class="details">
+
+
+                <div class="details-image">
+                    <div class="carousel">
+                        <div class="carousel-inner">
+                            <!-- Основное изображение -->
+                            <div class="item active">
+                                <div class="image-wrapper">
+                                    <img id="main-image" th:src="${object.getMainPhoto()}"
+                                         th:alt="${object.getName()}"/>
+                                </div>
+                            </div>
+                            <!-- Дополнительные изображения -->
+                            <div th:each="photo, iterStat : ${object.getPhotos()}" class="item">
+                                <div class="image-wrapper">
+                                    <img class="additional-image" th:src="${photo.getPhoto()}"
+                                         th:alt="${object.getName()}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="carousel-controls">
+                            <button id="prev-btn" class="carousel-control">&#8249;</button>
+                            <button id="next-btn" class="carousel-control">&#8250;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-info">
+                    <ul>
+                        <li>
+                            <h1 th:text="${object.getName()}"></h1>
+                        </li>
+                        <li>
+                            <div class="rating">
+                                <div th:if="${object.getReviews().isEmpty()}"><span>Нет отзывов</span></div>
+                                <div th:unless="${object.getReviews().isEmpty()}">
+                                <span>
+                                <i th:if="${object.getRating() >= 1}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 0.5 && object.getRating() < 1}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 0.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                    <span>
+                                <i th:if="${object.getRating() >= 2}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 1.5 && object.getRating() < 2}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 1.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                    <span>
+                                <i th:if="${object.getRating() >= 3}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 2.5 && object.getRating() < 3}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 2.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                    <span>
+                                <i th:if="${object.getRating() >= 4}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 3.5 && object.getRating() < 4}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 3.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                    <span>
+                                 <i th:if="${object.getRating() >= 5}" class="fa fa-star"></i>
+                                <i th:if="${object.getRating() >= 4.5 && object.getRating() < 5}" class = "fa fa-star-half-o"></i>
+                                <i th:if="${object.getRating() < 4.5}" class = "fa fa-star-o" style="color:black"></i>
+                                </span>
+
+                                    <span th:text="${object.getReviews().size()} + ' отзывов'"></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            Цена за день: <strong th:text="${object.getPricePerDay()} + ' BYN'"></strong>
+                        </li>
+                        <li>
+                            Тип: <strong th:text="${object.getObjectType()}"></strong>
+                        </li>
+                        <li>
+                            Максимальное количество гостей: <strong th:text="${object.getAvailableGuests()}"></strong>
+                        </li>
+                        <li>
+                            Описание: <strong th:text="${object.getDescription()}"></strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="details-action-container">
+                    <div class="details-action">
+                        <ul>
+                            <li>
+                                Цена за день: <strong th:text="${object.getPricePerDay()}"></strong>
+                            </li>
+                            <li>
+                                <form  sec:authorize="isAnonymous()" th:method="GET" th:action="@{/api/v1/auth/login}">
+                                    <button id="add-button-login" class="fw primary" type="submit">
+                                        Войти чтобы забронировать
+                                    </button>
+                                </form>
+                                <form sec:authorize="isAuthenticated()" th:method="GET" th:action="@{/api/v1/bookings/{id}(id=${object.getId()})}">
+                                    <button id="add-button" th:value="${object.getId()}"  class="fw primary" type="submit">
+                                        Забронировать
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="gray-container">
+                        <h2>Отзывы</h2>
+                        <div class="review-list" th:if="${not #sets.isEmpty(object.getReviews())}">
+                            <div class="review-item" th:each="review : ${object.getReviews()}">
+                                <div class="review-user">
+                                    <span class="review-phone" th:text="${review.user.phone}"></span>
+                                </div>
+                                <div class="review-rating">
+                                    <span class="fa fa-star" th:if="${review.rating >= 1}"></span>
+                                    <span class="fa fa-star" th:if="${review.rating >= 2}"></span>
+                                    <span class="fa fa-star" th:if="${review.rating >= 3}"></span>
+                                    <span class="fa fa-star" th:if="${review.rating >= 4}"></span>
+                                    <span class="fa fa-star" th:if="${review.rating == 5}"></span>
+                                </div>
+                                <div class="review-comment">
+                                    <p th:text="${review.comment}"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="no-reviews" th:if="${#sets.isEmpty(object.getReviews())}">
+                            <p>Здесь пока что нет отзывов...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+            Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+        </div>
+        <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+    </footer>
+</div>
+
+
+</body>
+</html>
+<script>
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const items = document.querySelectorAll('.carousel-inner .item');
+
+    let currentIndex = 0;
+
+    prevBtn.addEventListener('click', () => {
+        items[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex === 0) ? items.length - 1 : currentIndex - 1;
+        items[currentIndex].classList.add('active');
+    });
+
+    nextBtn.addEventListener('click', () => {
+        items[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex === items.length - 1) ? 0 : currentIndex + 1;
+        items[currentIndex].classList.add('active');
+    });
+
+    // Установка активного изображения при загрузке страницы
+    items[currentIndex].classList.add('active');
+</script>

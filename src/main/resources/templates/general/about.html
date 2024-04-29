@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+  <meta charset="UTF-8">
+  <title>Список объектов баз отдыха</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/objects.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <style>
+    #map-container {
+      float: left;
+      width: 600px;
+      height: 600px;
+    }
+    #text-container {
+      margin-left: 620px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    #text-container h2 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    #text-container p {
+      font-size: 1.6rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    #contact-info {
+      margin-top: 30px;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    #contact-info p {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+  <header id="header-container">
+    <div class="brand">
+      <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+    </div>
+    <div>
+      <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+      <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+      <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+    </div>
+  </header>
+  <main id ="main-container">
+    <div id="map-container">
+      <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab5f26c2fcc0587f340a247f12329d7ce01c5e620380bd8c95f2110572fba3fd9&amp;width=600&amp;height=600&amp;lang=ru_RU&amp;scroll=true"></script>
+    </div>
+    <div id="text-container">
+      <h2>Чижовская база отдыха</h2>
+      <p>В нашей базе отдыха вы сможете полностью отдохнуть от суеты городской жизни. Мы предлагаем комфортабельные номера, современные развлечения и уютную обстановку. Наш объект расположен в экологически чистом месте, где вы можете насладиться чистым воздухом и красотой природы.</p>
+      <p>Мы предлагаем лояльные цены и отзывчивый персонал, который всегда готов помочь Вам. Наши гости могут воспользоваться бесплатным Wi-Fi, парковкой и другими удобствами.</p>
+      <p>Кроме того, мы предлагаем экскурсии по экологической тропе Малявки, где вы можете насладиться Fresh Air and Stunning Views.</p>
+      <div id="contact-info">
+        <p><strong>Контакты:</strong></p>
+        <p>Телефон: <a href="tel:+375292547787">+375 29 254-77-87</a></p>
+        <p>Адрес: Чижовка, Экологическая тропа Малявки</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-content">
+      Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+      Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+    </div>
+    <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+  </footer>
+</div>
+</body>
+</html>

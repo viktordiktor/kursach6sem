@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+  <meta charset="UTF-8">
+  <title>Список объектов баз отдыха</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/general.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/objects.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/public/styles/rating.css}"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <style>
+    #error-500-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+    }
+
+    #error-500-container h1 {
+      font-size: 10rem;
+      font-weight: bold;
+      color: darkblue;
+      margin-bottom: 0;
+    }
+
+    #error-500-container h2 {
+      font-size: 3rem;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+
+    #error-500-container p {
+      font-size: 1.5rem;
+      color: #666;
+      margin-bottom: 3rem;
+    }
+
+    #error-500-container .button {
+      display: inline-block;
+      background-color: royalblue;
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 1.5rem;
+      transition: background-color 0.3s ease;
+    }
+
+    #error-500-container .button:hover {
+      background-color: darkblue;
+    }
+  </style>
+</head>
+<body>
+<div class="overlay" id="loading-overlay">Загрузка...</div>
+<div class="overlay" id="message-overlay"></div>
+<div class="grid-container">
+  <header id="header-container">
+    <div class="brand">
+      <a th:href="@{/api/v1/recreation-objects}"><img th:src="@{/public/pictures/logo.png}" alt="logo"></a>
+    </div>
+    <div>
+      <a sec:authorize="isAnonymous()" th:href="@{/api/v1/auth/login}">Войти</a>
+      <a sec:authorize="isAuthenticated()" th:href="@{/api/v1/users/profile}">Профиль</a>
+      <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/api/v1/users/admin/dashboard}">Панель администратора</a>
+    </div>
+  </header>
+  <main id="error-500-container">
+    <h1>500</h1>
+    <h2>Ошибка сервера</h2>
+    <p>Мы уже это чиним)) Попробуйте завтра</p>
+    <a href="/" class="button">Вернуться на главную</a>
+  </main>
+  <footer>
+    <div class="footer-content">
+      Общество с ограниченной ответственностью «Виктор Диктор». Свидетельство о государственной регистрации выдано Минским горисполкомом от 19.04.2018 с регистрационным номером 193067319. УНП 193067319.
+      Юр. адрес: 220073, г. Минск, ул. Скрыганова, д. 14, каб. 36. Время работы с понедельника по пятницу с 9:00 до 17:30.
+    </div>
+    <a class="footer-link" th:href="@{/api/v1/general/about}">О нас</a>
+  </footer>
+</div>
+</body>
+</html>

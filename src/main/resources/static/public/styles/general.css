@@ -1,0 +1,235 @@
+*{
+    box-sizing: border-box;
+}
+html{
+    font-size: 62.5%;
+}
+body{
+    height: 100vh;
+    font: 1.6rem 'Roboto Slab', serif;
+    margin: 0;
+}
+a{
+    color:black;
+    text-decoration: none;
+}
+button{
+    cursor:pointer;
+}
+input,
+button,
+select,
+textarea{
+    font: 1.6rem helvetica;
+    padding: 1rem;
+    border:0.1rem #808080 solid;
+    border-radius: 0.5rem;
+}
+input:hover,
+button:hover{
+    border: 0.1rem #404040 solid;
+}
+button.primary{
+    background-color:gold;
+}
+
+.overlay {
+    display:none;
+    position: fixed;
+    z-index: 1000;
+    left:0;
+    width:100%;
+    height: 100%;
+    background-color: rgba(16,16,16, 0.5);
+}
+.overlay.active{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+}
+.overlay > div{
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    max-width: 40rem;
+}
+.overlay > div > *{
+    margin: 2rem;
+}
+
+.fw{
+    width:100%;
+}
+.success{
+    color: green;
+}
+.error{
+    color:#c04040;
+}
+a:hover{
+    color: salmon;
+}
+.grid-container{
+    display: grid;
+    grid-template-areas:
+    'header'
+    'main'
+    'footer';
+    grid-template-columns: 1fr;
+    grid-template-rows: 11rem 1fr 4rem;
+    height:100%
+}
+
+main {
+    overflow: auto;
+}
+
+header{
+    grid-area: header;
+    background-color: cornflowerblue;
+    color:aliceblue;
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
+}
+header a{
+    font-size: 2.2rem;
+    color:white;
+    text-shadow: 1px 1px 1px gray;
+    text-decoration: none;
+    padding-right: 1rem;
+}
+
+header img{
+    max-width: 30rem;
+    max-height: 24rem;
+    object-fit: contain;
+}
+
+header a:hover{
+    color:salmon
+}
+
+.brand a{
+    font-size: 3rem;
+    font-weight: bold;
+    padding-left: 1rem;
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: cornflowerblue;
+    color: white;
+    padding: 1rem;
+}
+
+.footer-content {
+    flex: 10; /* take up 3/4 of the available space */
+    font-size: 10px;
+}
+
+.footer-link {
+    flex: 1;
+    color: white;
+    font-size: 30px;
+    text-align: right;
+}
+
+
+.popup {
+    position: fixed;
+    bottom: 1px; /* Отступ снизу */
+    right: 1px; /* Отступ справа */
+    width: 400px; /* Ширина всплывающего окна */
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    display: none;
+    z-index: 999; /* Устанавливаем более высокий z-index, чтобы окно было поверх других элементов */
+}
+
+.popup-content {
+    padding: 20px;
+    text-align: center;
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-form input[type="text"],
+.search-form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#searchButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#searchButton:hover {
+    background-color: #45a049;
+}
+
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+}
+
+#openPopup {
+    width: 120px; /* Установите желаемую ширину изображения */
+    height: 120px; /* Установите желаемую высоту изображения */
+}
+
+.search-result-heading {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.no-objects-found {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+}
+
+table {
+    width: 100%;
+}
+th {
+    text-align: left;
+}
+tbody > tr:nth-child(odd) {
+    background-color: #f0f0f0;
+}
+td {
+    padding: 0.5rem;
+}

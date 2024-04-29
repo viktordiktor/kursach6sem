@@ -1,0 +1,162 @@
+.details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.details-image {
+    flex: 1 1 30rem; /* Увеличить ширину */
+    margin-left: 2rem;
+    margin-right: 4rem; /* Добавить отступ справа */
+}
+
+.details-image img {
+    width: 50rem;
+    height: 40rem;
+    object-fit: fill;
+}
+
+.details-reviews,
+.details-info,
+.details-action,
+.details-action-container {
+    flex: 1 1 10rem;
+}
+
+.details-info ul,
+.details-action ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+.details-info h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.details-info li,
+.details-action li {
+    margin-bottom: 1rem;
+}
+
+.details-action {
+    border: 0.1rem #808080 solid;
+    border-radius: 0.5rem;
+    background-color: #f8f8f8;
+    padding: 0.5rem;
+}
+
+.details-action-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.gray-container {
+    background-color: #eee;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.gray-container h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.review-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    max-height: 30rem;
+}
+
+.review-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.review-user {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.review-phone {
+    color: #444;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.review-rating .fa {
+    color: #ffc107;
+    font-size: 2rem;
+}
+
+.review-comment {
+    font-size: 1.2rem;
+    color: #444;
+}
+
+.carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+.carousel-inner {
+    display: flex;
+    justify-content: center;
+    height: 40rem; /* Увеличить высоту */
+    padding-top: 2rem; /* Добавить отступ сверху */
+    padding-bottom: 2rem; /* Добавить отступ снизу */
+}
+
+.carousel-inner .item {
+    flex: 0 0 100%;
+    display: none;
+}
+
+.carousel-inner .item.active {
+    display: flex;
+    justify-content: center; /* Добавлено */
+}
+
+.carousel-controls {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.carousel-control {
+    position: relative;
+    border: none;
+    background-color: transparent;
+    color: #000;
+    font-size: 2rem;
+}
+
+#prev-btn {
+    left: 1rem;
+}
+
+#next-btn {
+    right: 1rem;
+    left: auto;
+}
+
+.busy-date {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
