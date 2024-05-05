@@ -1,6 +1,7 @@
 package com.nikonenko.kursach6sem.utils;
 
 import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.json.JSONObject;
 
+@Component
 public class ImgurUploader {
     public String uploadToImgur(MultipartFile multipartFile, String clientID) throws IOException {
         // Создаем временный файл для сохранения содержимого MultipartFile

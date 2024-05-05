@@ -49,7 +49,7 @@ public class ReviewServiceImplTest {
         RecreationObjectDto recreationObjectDto = new RecreationObjectDto();
 
         doReturn(user).when(userService).getCurrentUser();
-        doReturn(recreationObjectDto).when(recreationObjectService.getRecreationObjectById(anyLong()));
+        doReturn(recreationObjectDto).when(recreationObjectService).getRecreationObjectById(anyLong());
         doReturn(recreationObject).when(modelMapper).map(any(RecreationObjectDto.class), eq(RecreationObject.class));
 
         reviewService.createReview(reviewDto, 1L);
